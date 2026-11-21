@@ -1,0 +1,52 @@
+
+\begin{abstract}
+\small
+\emergencystretch=2em
+
+Epilepsy is a neurological disorder that requires
+specialized clinical assessment. Electroencephalography
+(EEG) plays an important role in the evaluation of
+abnormal electrical activity in the brain. However,
+the interpretation of EEG recordings can be a
+time-consuming process, particularly when dealing
+with long-duration studies and large volumes of
+signal data.
+
+This thesis presents the design and implementation of the EEG Analysis System (\textit{Sistema de Análisis EEG}), a web-based platform developed to
+support healthcare professionals in the management,
+visualization, and analysis of electroencephalographic
+studies. The platform incorporates an artificial
+intelligence component designed to support the
+identification and review of potential epileptiform
+abnormalities.
+
+The system was developed using React for the web
+interface, Java and Spring Boot for backend services,
+and PostgreSQL for data persistence. The artificial
+intelligence subsystem uses Python-based components,
+FastAPI for service integration, and scientific
+libraries for EEG signal processing. The architecture
+separates clinical information management from the
+components responsible for automated signal analysis. The system provides functionalities for patient and
+EEG study management, visualization of signals in
+EDF format, signal filtering, sensitivity
+adjustment, EEG montages, anomaly annotation, and
+the preparation of medical reports. The platform
+also incorporates mechanisms for managing user
+access and sharing studies among authorized
+healthcare professionals.
+
+The evaluation included functional and integration
+tests of the main clinical management and EEG
+visualization components, as well as validation
+sessions conducted with a medical specialist
+at the Central Hospital of the Instituto de
+Previsión Social (IPS). The results provided
+evidence of the correct operation of the main
+functionalities evaluated. In addition, the artificial intelligence processing was verified end to end, under controlled conditions, on a small set of studies from real patients, and its results were reviewed by the specialist.
+
+In conclusion, the system provides a technological
+platform to support the organization, visualization,
+and analysis of EEG studies, and is currently being transferred to the IPS for use by the professionals of the service.
+
+\end{abstract}

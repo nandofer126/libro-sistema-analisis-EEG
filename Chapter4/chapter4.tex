@@ -1,0 +1,636 @@
+\chapter{Análisis de requerimientos y diseño}
+\label{cap:analisis-diseno}
+
+\section{Contexto operativo del Hospital Central del IPS}
+\label{sec:contexto-operativo-ips}
+
+El Sistema de Análisis EEG fue desarrollado considerando el contexto de trabajo relacionado con
+los estudios electroencefalográficos en el Hospital Central del Instituto de
+Previsión Social (IPS). El análisis de este entorno permitió identificar las
+actividades involucradas en la gestión y revisión de los estudios EEG y
+establecer las necesidades que posteriormente dieron origen a los
+requerimientos del sistema.
+
+En el flujo de trabajo considerado, la adquisición de las señales EEG se
+realiza mediante el equipamiento especializado disponible en la institución.
+Una vez obtenido el registro, el flujo de trabajo continúa con la revisión
+del estudio, el examen de las señales electroencefalográficas y la utilización
+de la información obtenida durante el análisis para la elaboración del informe
+correspondiente.
+
+El equipamiento utilizado para la adquisición y revisión de los estudios
+incluye el sistema Easy III de Cadwell. Este proporciona las funciones
+necesarias para registrar y revisar las señales electroencefalográficas; sin embargo, el sistema no fue concebido para sustituir el proceso de
+adquisición realizado mediante dicho equipamiento. Su alcance se concentra en
+las etapas posteriores, una vez que los archivos correspondientes al estudio
+se encuentran disponibles para su incorporación al sistema.
+
+Dentro de este contexto se identificó la necesidad de disponer de una
+plataforma web que permitiera centralizar diferentes actividades asociadas con
+los estudios. Entre ellas se encuentran el registro y la consulta de la información necesaria para identificar a los pacientes y sus estudios, la incorporación de los archivos correspondientes, la visualización de las señales EEG y la elaboración de informes médicos por parte de los profesionales responsables de su revisión.
+
+A estas necesidades se incorporó la posibilidad de utilizar procesamiento
+automatizado mediante inteligencia artificial como apoyo durante el análisis.
+Para ello, el sistema debía permitir solicitar el procesamiento de un estudio,
+recibir los resultados generados y presentarlos junto con la información
+necesaria para que el profesional pudiera revisarlos en relación con las
+señales EEG. El resultado del procesamiento automatizado no sustituye la
+interpretación realizada por el especialista ni constituye por sí mismo un
+diagnóstico clínico.
+
+El contexto operativo también hizo necesario considerar diferentes
+responsabilidades dentro del sistema. Las actividades relacionadas con la
+administración de usuarios, la preparación y gestión de los estudios y la
+revisión especializada de las señales requieren distintos niveles de acceso.
+Asimismo, las operaciones realizadas sobre la información debían quedar
+registradas para facilitar su trazabilidad.
+
+A partir del análisis de este contexto se definieron los actores, requerimientos
+y componentes que conforman el sistema. Las secciones siguientes presentan estas
+definiciones y describen las principales decisiones adoptadas para el diseño de
+la solución.
+
+\section{Actores y perfiles de usuario}
+\label{sec:actores-perfiles}
+
+A partir del relevamiento de requerimientos y del análisis del flujo de trabajo
+se definieron los perfiles de usuario necesarios para representar las
+diferentes responsabilidades dentro del sistema. La definición de estos
+perfiles permite delimitar las operaciones que puede realizar cada usuario y
+constituye la base para el control de acceso aplicado sobre las funcionalidades
+del sistema.
+
+Durante el desarrollo, la organización de los perfiles fue objeto de revisión.
+Las primeras definiciones contemplaban una separación entre distintos perfiles
+clínicos; posteriormente, estas responsabilidades fueron reorganizadas de
+acuerdo con las necesidades identificadas durante las revisiones del sistema.
+Como resultado, la configuración final del sistema contempla tres perfiles
+principales: Administrador, Técnico y Especialista.
+
+El Cuadro~\ref{tab:perfiles-usuario} resume la responsabilidad principal
+asociada con cada uno de estos perfiles.
+
+\begin{table}[H]
+    \centering
+    \caption{Perfiles de usuario definidos en el sistema.}
+    \label{tab:perfiles-usuario}
+    \begin{tabular}{|p{0.20\textwidth}|p{0.68\textwidth}|}
+        \hline
+        \textbf{Perfil} & \textbf{Responsabilidad principal} \\
+        \hline
+        Administrador &
+        Administración de usuarios y de los aspectos de configuración
+        necesarios para la operación del sistema. \\
+        \hline
+        Técnico &
+        Gestión de los datos de los pacientes y estudios,
+        incluyendo el registro y la preparación de los estudios EEG para su
+        posterior revisión. \\
+        \hline
+        Especialista &
+        Revisión y análisis de los estudios EEG, utilización de las
+        herramientas de visualización, revisión de los resultados asociados
+        al estudio y elaboración de informes médicos. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+El perfil \textbf{Administrador} concentra las responsabilidades relacionadas
+con la administración del sistema. Entre sus funciones se encuentra la gestión
+de los usuarios y de los elementos necesarios para mantener el acceso
+controlado a las diferentes funcionalidades. Este perfil se orienta
+principalmente a tareas administrativas y de configuración, y no al análisis
+clínico de los estudios EEG.
+
+El perfil \textbf{Técnico} participa en las actividades relacionadas con la
+preparación y gestión de los estudios. Sus responsabilidades comprenden la
+gestión de la información necesaria para identificar al paciente y la creación
+y actualización de los estudios EEG. De esta manera, el técnico interviene
+principalmente en las etapas previas a la revisión especializada del estudio.
+
+El perfil \textbf{Especialista} representa al profesional responsable de la
+revisión de los estudios EEG dentro del sistema. Este perfil dispone de las
+funcionalidades necesarias para acceder a los estudios correspondientes,
+examinar las señales electroencefalográficas, utilizar las herramientas de
+análisis disponibles, revisar la información asociada con eventos y anomalías
+y trabajar con los resultados provenientes del procesamiento mediante
+inteligencia artificial. Asimismo, puede elaborar y gestionar los informes
+médicos asociados con los estudios y utilizar los mecanismos de colaboración
+habilitados por el sistema.
+
+La separación entre estos perfiles responde al principio de asignar las
+funcionalidades de acuerdo con las responsabilidades de cada tipo de usuario.
+La existencia de un perfil determinado no implica por sí sola el acceso
+indiscriminado a todas las operaciones del sistema, ya que las acciones
+disponibles se encuentran sujetas a los permisos definidos para cada rol. El
+diseño de estos mecanismos de autorización se describe posteriormente en la
+sección correspondiente a seguridad y control de acceso.
+
+\section{Requerimientos funcionales}
+\label{sec:requerimientos-funcionales}
+
+A partir del análisis del contexto operativo, de los actores identificados y
+de las actividades que conforman el flujo de trabajo considerado para
+el sistema, se definieron los requerimientos funcionales que establecen las
+principales capacidades que debe proporcionar el sistema.
+
+Con el propósito de facilitar su organización y mantener una separación
+clara entre las distintas responsabilidades funcionales, los requerimientos
+se agruparon en siete áreas: administración y acceso, gestión de pacientes,
+gestión de estudios EEG, visualización y análisis EEG, procesamiento mediante
+inteligencia artificial, informes médicos y auditoría y trazabilidad.
+
+Cada requerimiento se identifica mediante un código compuesto por el prefijo
+RF, seguido de la abreviatura correspondiente al área funcional y un número
+correlativo. Esta clasificación permite relacionar posteriormente los
+requerimientos con los componentes de diseño, implementación y pruebas
+descritos en los capítulos siguientes.
+
+\begin{nuevotexto}
+El Cuadro~\ref{tab:resumen-rf} resume las siete áreas, con la cantidad de requerimientos de cada una y su alcance.
+En total se definieron 64 requerimientos funcionales.
+La lista completa, con el código y la descripción de cada requerimiento, se presenta en el Anexo~A.
+
+\begin{table}[H]
+\centering
+\marcanuevo
+\caption{Resumen de los requerimientos funcionales por área.}
+\label{tab:resumen-rf}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.6cm}|p{1.6cm}|c|p{7.2cm}|}
+\hline
+\textbf{Área} & \textbf{Código} & \textbf{Cant.} & \textbf{Alcance} \\
+\hline
+Administración y acceso & RF-ADM & 12 & Autenticación, administración de cuentas de usuario, control de acceso y recuperación de credenciales. \\
+\hline
+Gestión de pacientes & RF-PAC & 5 & Registro, consulta y actualización de los datos de los pacientes, integrados en la gestión de estudios. \\
+\hline
+Gestión de estudios EEG & RF-EST & 12 & Registro y consulta de estudios, incorporación de los archivos EEG y de video, y operaciones sobre su estado y compartición. \\
+\hline
+Visualización y análisis EEG & RF-VIS & 11 & Navegación y configuración de la visualización de las señales, revisión de video, eventos e intervalos de interés, y presentación de los resultados de IA. \\
+\hline
+Procesamiento mediante IA & RF-IA & 8 & Solicitud y seguimiento de las ejecuciones, obtención de resultados y registro de su revisión por el Especialista. \\
+\hline
+Informes médicos & RF-INF & 10 & Creación, consulta, edición y cierre de los informes elaborados por los Especialistas. \\
+\hline
+Auditoría y trazabilidad & RF-AUD & 6 & Registro y consulta de las operaciones relevantes realizadas en el sistema. \\
+\hline
+\textbf{Total} & & \textbf{64} & \\
+\hline
+\end{tabular}
+\end{table}
+\end{nuevotexto}
+
+\section{Requerimientos no funcionales}
+\label{sec:requerimientos-no-funcionales}
+
+Además de las capacidades funcionales descritas en la sección anterior, se
+definieron requerimientos no funcionales relacionados con las características
+de calidad y las restricciones generales que debe satisfacer el sistema. Estos
+requerimientos consideran aspectos de rendimiento, seguridad, usabilidad y
+compatibilidad, confiabilidad e integridad, mantenibilidad e interoperabilidad,
+así como portabilidad y despliegue.
+
+Los requerimientos fueron establecidos considerando las características del
+entorno de utilización del sistema y las necesidades derivadas del manejo de
+estudios EEG e información asociada. Los requerimientos no funcionales se presentan
+agrupados según la característica de calidad a la que se encuentran asociados.
+
+\begin{nuevotexto}
+El Cuadro~\ref{tab:resumen-rnf} resume las seis categorías y su alcance.
+En total se definieron 16 requerimientos no funcionales, cuya lista completa se presenta en el Anexo~A.
+
+\begin{table}[H]
+\centering
+\marcanuevo
+\caption{Resumen de los requerimientos no funcionales por categoría.}
+\label{tab:resumen-rnf}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.6cm}|p{1.6cm}|c|p{7.2cm}|}
+\hline
+\textbf{Categoría} & \textbf{Código} & \textbf{Cant.} & \textbf{Alcance} \\
+\hline
+Rendimiento & RNF-REN & 1 & Exploración de registros EEG extensos mediante la interfaz. \\
+\hline
+Seguridad & RNF-SEG & 3 & Protección del acceso al sistema, de las credenciales y de las comunicaciones. \\
+\hline
+Usabilidad y compatibilidad & RNF-USA & 4 & Acceso desde los dispositivos y navegadores previstos, con una presentación comprensible para cada perfil. \\
+\hline
+Confiabilidad e integridad & RNF-CON & 3 & Consistencia de la información y tratamiento de las operaciones que no se completan. \\
+\hline
+Mantenibilidad e interoperabilidad & RNF-MAN & 3 & Organización en componentes y mecanismos de comunicación definidos entre ellos. \\
+\hline
+Portabilidad y despliegue & RNF-POR & 2 & Tecnologías utilizadas y despliegue de los componentes en entornos reproducibles. \\
+\hline
+\textbf{Total} & & \textbf{16} & \\
+\hline
+\end{tabular}
+\end{table}
+\end{nuevotexto}
+
+\section{Diagramas de secuencia}
+\label{sec:diagramas-secuencia}
+
+Los diagramas de secuencia permiten representar las interacciones
+entre los actores y los componentes del sistema durante la ejecución
+de determinados procesos. Su utilización facilita la comprensión
+del intercambio de solicitudes, respuestas e información entre
+los elementos que conforman el sistema.
+
+Para describir el comportamiento de la solución se seleccionaron cinco procesos representativos, considerando su importancia dentro del flujo de trabajo y su relación con los requerimientos funcionales definidos anteriormente.
+
+Los diagramas presentan las principales interacciones entre
+los usuarios, la interfaz web, los servicios del \textit{backend},
+la base de datos y, cuando corresponde, el componente de
+inteligencia artificial integrado al sistema.
+
+\begin{nuevotexto}
+Los cinco procesos son la autenticación de usuario, el registro y la preparación de un estudio EEG, la visualización de las señales, el procesamiento mediante inteligencia artificial y la elaboración y el cierre de informes médicos.
+A continuación se presenta el correspondiente al procesamiento mediante inteligencia artificial, que involucra a todos los componentes del sistema.
+Los doce diagramas elaborados se presentan en el Anexo~A.
+\end{nuevotexto}
+
+\subsection{Procesamiento de estudios mediante inteligencia artificial}
+\label{subsec:secuencia-procesamiento-ia}
+
+El procesamiento de estudios EEG mediante inteligencia
+artificial constituye una funcionalidad de apoyo al
+análisis realizado por el Especialista. Este proceso
+permite solicitar el análisis automatizado de un
+registro electroencefalográfico y consultar los
+resultados obtenidos mediante el servicio de IA
+integrado en el sistema.
+
+La solicitud se origina en la interfaz web y es
+recibida por el \textit{backend} clínico, que verifica
+los permisos del usuario, las condiciones del
+estudio y la disponibilidad del archivo EEG.
+Cuando se cumplen las condiciones necesarias,
+el \textit{backend} se comunica con la API de IA para
+solicitar el procesamiento.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[
+        width=\textwidth,
+        height=0.82\textheight,
+        keepaspectratio
+    ]{ThesisFigs/secuencia_solicitud_ia.png}
+    \caption{Diagrama de secuencia de la solicitud
+    de procesamiento mediante inteligencia artificial
+    en el sistema.}
+    \label{fig:secuencia-solicitud-ia}
+\end{figure}
+
+\section{Arquitectura del sistema}
+\label{sec:arquitectura-sistema}
+
+La arquitectura del sistema fue diseñada con el propósito de organizar
+las funcionalidades del sistema en componentes diferenciados, de acuerdo
+con sus responsabilidades dentro del proceso de gestión y análisis de
+estudios electroencefalográficos.
+
+La solución adopta una arquitectura web en la que se separan la
+interfaz de usuario, la lógica de negocio, la persistencia de la
+información y el procesamiento mediante inteligencia artificial.
+Esta organización permite que los componentes se comuniquen mediante
+interfaces definidas, manteniendo diferenciadas las operaciones
+relacionadas con la gestión clínica y aquellas destinadas al
+procesamiento automatizado de las señales EEG.
+
+El diseño contempla la interacción entre los usuarios y la aplicación
+web, la administración de la información asociada con pacientes y
+estudios, el acceso a los archivos electroencefalográficos y la
+integración de los resultados generados mediante inteligencia
+artificial.
+
+\subsection{Arquitectura general}
+\label{subsec:arquitectura-general}
+
+El sistema se organiza mediante una arquitectura cliente-servidor,
+complementada con componentes especializados para el procesamiento
+de señales EEG.
+
+La interfaz web constituye el punto de acceso de los usuarios
+autorizados. Desde ella se realizan las operaciones relacionadas
+con la administración del sistema, la gestión de estudios, la
+visualización de señales electroencefalográficas y la elaboración
+de informes médicos.
+
+Las solicitudes realizadas desde la interfaz son atendidas por
+el \textit{backend} clínico, encargado de aplicar las reglas de negocio,
+verificar las condiciones de acceso y coordinar las operaciones
+necesarias para consultar o modificar la información almacenada.
+
+La persistencia de la información estructurada se organiza mediante dos bases de datos PostgreSQL: una destinada a la gestión clínica y administrativa del sistema, y otra utilizada por el subsistema de inteligencia artificial para almacenar información relacionada con las ejecuciones y sus resultados. Por otra parte, los archivos asociados con los estudios EEG se conservan mediante mecanismos de almacenamiento independientes de las estructuras relacionales.
+
+\begin{nuevotextodos}
+El análisis automatizado de las señales está a cargo de un subsistema de inteligencia artificial, con el que el \textit{backend} clínico se comunica mediante una API.
+Este subsistema separa dos tareas: la API recibe las solicitudes y permite consultar su estado y sus resultados, mientras que un motor independiente realiza la detección de crisis.
+Ambos se coordinan mediante una base de datos compartida, que registra los trabajos pendientes, su estado y los resultados.
+Los espectrogramas DSA, en cambio, se generan directamente en la API.
+\end{nuevotextodos}
+
+Esta organización establece una separación de responsabilidades entre los componentes del sistema y permite identificar los mecanismos de integración de la plataforma web con los servicios de inteligencia artificial, sin vincular la representación arquitectónica con tecnologías específicas de implementación. En este contexto, el presente trabajo de tesis se centra en el desarrollo de la plataforma web y en la integración del subsistema de inteligencia artificial, mientras que el desarrollo y el entrenamiento de los modelos de detección, a cargo del equipo de ciencia de datos, y la infraestructura tecnológica forman parte del proyecto en el que se enmarca este trabajo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{ThesisFigs/arquitectura_general.png}
+    \caption{Arquitectura general del sistema.}
+    \label{fig:arquitectura-general}
+\end{figure}
+
+\begin{nuevotexto}
+Las responsabilidades de cada componente y la comunicación entre ellos se describen en el Anexo~A.
+\end{nuevotexto}
+
+\section{Diseño de la base de datos}
+\label{sec:diseno-base-datos}
+
+El diseño de persistencia del sistema contempla
+la separación de la información clínica y operativa
+del sistema respecto de los datos utilizados para
+coordinar el procesamiento mediante inteligencia
+artificial. Para ello, se emplean dos bases de datos
+relacionales PostgreSQL, con responsabilidades
+diferenciadas.
+
+Los archivos que contienen las señales EEG y los
+videos asociados se conservan en un almacenamiento
+de archivos independiente de las tablas relacionales.
+De esta manera, la información estructurada del
+sistema puede relacionarse con los registros
+electroencefalográficos sin requerir que el contenido
+completo de dichos archivos se almacene directamente
+en la base de datos clínica.
+
+El modelo de datos clínicos del sistema se estructura
+principalmente alrededor de las entidades
+\texttt{patient} y \texttt{study}, que representan,
+respectivamente, a los pacientes registrados y sus
+estudios electroencefalográficos. La relación entre
+ambas entidades es de uno a muchos, dado que un
+paciente puede tener varios estudios EEG, mientras
+que cada estudio corresponde a un único paciente.
+
+La Figura~\ref{fig:er-pacientes-estudios}
+presenta las principales entidades relacionadas
+con el registro de pacientes, la gestión de estudios
+electroencefalográficos, sus archivos asociados
+y las configuraciones de montaje EEG.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{ThesisFigs/er_pacientes_estudios.png}
+    \caption{Modelo entidad-relación de pacientes,
+    estudios y archivos EEG del sistema.}
+    \label{fig:er-pacientes-estudios}
+\end{figure}
+
+\begin{nuevotextodos}
+El subsistema de inteligencia artificial utiliza una base de datos PostgreSQL independiente, cuyas entidades principales son \texttt{ai\_executions}, que representa cada solicitud de análisis, y \texttt{ai\_results}, que conserva los intervalos señalados.
+Las dos bases se vinculan mediante identificadores compartidos a nivel de aplicación, sin claves foráneas entre ellas.
+
+La descripción completa de las entidades de ambas bases, los demás diagramas entidad-relación y los mecanismos de integridad se presentan en el Anexo~A.
+\end{nuevotextodos}
+
+\section{Diseño de los servicios e interfaces de integración}
+\label{sec:diseno-servicios-integracion}
+
+La integración de los componentes del sistema se organiza
+mediante interfaces de comunicación que permiten intercambiar
+información entre la aplicación web, el \textit{backend} clínico y
+el subsistema de inteligencia artificial. Esta organización
+establece responsabilidades diferenciadas para la gestión
+clínica, el acceso a los estudios electroencefalográficos
+y la ejecución de los procesos de análisis automatizado.
+
+La interfaz web, desarrollada con React, consume los servicios
+REST expuestos por el \textit{backend} clínico, implementado con
+Spring Boot y ejecutado sobre WildFly. Este componente
+centraliza las operaciones relacionadas con usuarios,
+pacientes, estudios EEG, informes médicos y auditoría,
+además de gestionar la comunicación con los servicios
+de inteligencia artificial.
+
+La integración con el subsistema de inteligencia artificial
+se realiza mediante una API independiente desarrollada
+con FastAPI. El \textit{backend} clínico utiliza esta interfaz
+para solicitar análisis, consultar su estado, recuperar
+resultados y obtener representaciones complementarias
+de las señales EEG, como los espectrogramas.
+
+La API de inteligencia artificial y el motor de procesamiento
+se coordinan a través de una base de datos PostgreSQL
+compartida por ambos componentes. Esta comunicación permite
+gestionar las solicitudes de análisis sin requerir una
+conexión HTTP directa entre la API y el motor.
+
+El diseño de las interfaces también contempla mecanismos
+de autenticación, validación de solicitudes y tratamiento
+de errores, con el propósito de controlar el acceso a
+las operaciones y proporcionar respuestas adecuadas
+a los componentes consumidores.
+
+\begin{nuevotexto}
+Las interfaces REST del \textit{backend} clínico, las interfaces de integración con la API de inteligencia artificial, el intercambio de archivos EEG y el manejo de respuestas y errores se detallan en el Anexo~A.
+\end{nuevotexto}
+
+\section[Diseño del componente de inteligencia artificial integrado en el sistema]{Diseño del componente de inteligencia\\artificial integrado en el sistema}
+\label{sec:diseno-componente-ia}
+
+El componente de inteligencia artificial integrado en el sistema tiene como finalidad apoyar la revisión de
+registros electroencefalográficos mediante la
+identificación automatizada de intervalos temporales
+que podrían presentar actividad compatible con
+eventos epilépticos. Los resultados generados
+constituyen información complementaria para el
+Especialista y no sustituyen su interpretación
+clínica ni representan un diagnóstico definitivo.
+
+El diseño del componente contempla la utilización de modelos de aprendizaje automático previamente entrenados, desarrollados por el equipo de ciencia de datos del proyecto e incorporados al sistema mediante mecanismos de carga y ejecución de inferencias.
+En consecuencia, el alcance del presente trabajo comprende la integración del modelo: la gestión de las ejecuciones, la invocación del procesamiento y la gestión de los resultados.
+El diseño interno del modelo y su entrenamiento no forman parte de dicho alcance.
+
+\subsection{Preparación y procesamiento de señales EEG}
+\label{subsec:preparacion-procesamiento-eeg-ia}
+
+El procesamiento de señales electroencefalográficas mediante inteligencia artificial en el sistema parte de archivos digitales en formato EDF. El motor de inferencia accede al archivo asociado con la ejecución solicitada mediante una referencia a su ubicación en el almacenamiento, sin necesidad de transferir la totalidad de las muestras a través de la API de inteligencia artificial. Para interpretar el registro, el procedimiento utiliza la biblioteca MNE de Python.
+
+El procedimiento de análisis forma parte del modelo de detección provisto por el equipo de ciencia de datos del proyecto, por lo que su diseño interno no integra el alcance del presente trabajo.
+Para integrarlo, el motor considera sus etapas generales: la adaptación de las señales a un montaje bipolar longitudinal de 18 derivaciones, el remuestreo a 256~Hz, el filtrado, la segmentación en ventanas consecutivas de 10 segundos, la extracción de características de cada ventana y su normalización para cada registro.
+La configuración de estas etapas se distribuye junto con el modelo entrenado, de modo que el motor aplica a cada estudio el mismo procedimiento con el que el modelo fue entrenado (Sección~\ref{subsec:modelo-vigente-hgb}).
+
+\subsection{Generación e interpretación de resultados}
+\label{subsec:generacion-interpretacion-resultados-ia}
+
+Para cada ventana analizada, el modelo entrega una probabilidad de crisis.
+Estos valores constituyen salidas del modelo y no deben interpretarse, por sí solos, como una confirmación clínica de actividad epiléptica.
+
+La decisión de señalar un intervalo combina dos parámetros: un umbral de probabilidad y una cantidad mínima de ventanas consecutivas que deben superarlo.
+Ambos se definen en el paquete del modelo.
+Al registrarse una ejecución, el umbral aplicable se incorpora a sus datos, de manera que el valor utilizado permanece asociado al procesamiento correspondiente aunque la configuración se modifique posteriormente.
+Los valores del modelo vigente se indican en la Sección~\ref{subsec:modelo-vigente-hgb}.
+
+\subsection{Integración de resultados en la revisión clínica}
+\label{subsec:integracion-resultados-revision-clinica}
+
+Una vez concluida la ejecución, el \textit{backend} clínico puede consultar las ventanas que cumplen los criterios de detección y obtener sus límites temporales. Estos intervalos se expresan en segundos respecto del inicio del registro EEG, lo que permite relacionarlos con la posición correspondiente en las señales visualizadas. De este modo, los resultados automatizados funcionan como referencias temporales para orientar la inspección del registro, sin sustituir la observación directa de las señales.
+
+El diseño contempla mecanismos para incorporar a los informes médicos las ventanas de inteligencia artificial seleccionadas durante la revisión. La asociación conserva la referencia a la ejecución y al resultado de origen, así como información descriptiva y de clasificación aportada por el profesional. Esta vinculación permite distinguir los intervalos identificados automáticamente de aquellos que el especialista decide utilizar como parte de su informe.
+
+\section{Diseño de seguridad y control de acceso}
+\label{sec:seguridad-control-acceso}
+
+El diseño de seguridad del sistema contempla mecanismos destinados a controlar el acceso a las funcionalidades del sistema y a la información asociada con los pacientes, los estudios electroencefalográficos y los informes médicos. Dada la naturaleza de estos datos, el acceso se organiza mediante la identificación de los usuarios, la asignación de permisos y la verificación de las condiciones necesarias para realizar cada operación.
+
+La autenticación se realiza a través del \textit{backend} clínico, que emite un \textit{token} de acceso para las sesiones válidas. Las solicitudes posteriores a los servicios protegidos incorporan dicho \textit{token}, cuya validez se comprueba antes de permitir el procesamiento de la operación. Este mecanismo se complementa con el registro de sesiones, lo que permite controlar la vigencia de los accesos autenticados.
+
+La autorización combina permisos asociados a los roles del sistema con verificaciones adicionales sobre los recursos clínicos. Por ello, disponer de un permiso general para consultar o modificar estudios no implica necesariamente poder acceder a cualquier registro: determinadas operaciones también dependen de la relación del usuario con el estudio o el informe correspondiente.
+
+En la aplicación web, las rutas y acciones disponibles se presentan de acuerdo con la autenticación y los permisos del usuario. Sin embargo, estas restricciones de interfaz no sustituyen las verificaciones realizadas por el \textit{backend}, que constituye el punto de control para autorizar las solicitudes recibidas.
+
+\subsection{Autenticación de usuarios}
+\label{subsec:autenticacion-usuarios}
+
+Cuando las credenciales son válidas, el \textit{backend} genera un \textit{token} de acceso en formato \textit{JSON Web Token} (JWT).
+ El \textit{token} se firma digitalmente e incorpora información que permite identificar al usuario y determinar su período de vigencia. Asimismo, contiene un identificador único de \textit{token}, denominado \texttt{jti}, que se utiliza para relacionarlo con un registro de sesión persistido en la base de datos clínica. La respuesta de autenticación proporciona al \textit{frontend} la información necesaria para continuar las operaciones del usuario, incluidos sus permisos.
+
+El cierre de sesión dispone de una operación específica que identifica el \textit{token} utilizado y elimina el registro de sesión correspondiente. En consecuencia, aunque el JWT conserve una firma válida y no haya alcanzado su expiración, deja de ser aceptado cuando ya no existe una sesión vigente asociada a su identificador. Asimismo, el procedimiento de restablecimiento de contraseña contempla la invalidación de sesiones para impedir la continuidad de accesos previamente autorizados.
+
+\subsection{Roles y permisos}
+\label{subsec:roles-permisos}
+
+El control de acceso del sistema se organiza mediante un esquema de autorización basado en roles y permisos. Cada usuario dispone de un rol asociado con un conjunto de operaciones autorizadas, de acuerdo con las responsabilidades que desempeña dentro del sistema. Esta organización permite diferenciar las funciones administrativas, el registro y la preparación de estudios, y las actividades de revisión clínica.
+
+Es importante distinguir los permisos funcionales de las condiciones de acceso a un registro particular. Por ejemplo, disponer de autorización para consultar estudios no implica necesariamente poder visualizar cualquier estudio EEG. El sistema aplica comprobaciones adicionales según la participación del usuario y su relación con el recurso solicitado. Estas reglas de autorización contextual se desarrollan en el apartado siguiente.
+
+\subsection{Autorización sobre recursos clínicos}
+\label{subsec:autorizacion-recursos-clinicos}
+
+En los servicios vinculados a estudios EEG, el control de acceso considera la relación del usuario con cada estudio. La consulta se permite al Administrador, al Técnico que registró el estudio, al Especialista responsable y a los especialistas incorporados como observadores, siempre que dispongan también de los permisos funcionales requeridos. Por el contrario, un Especialista que no mantiene una relación autorizada con el estudio no adquiere acceso únicamente por pertenecer al mismo rol clínico.
+
+La gestión de informes médicos incorpora un control adicional basado en la autoría. El sistema permite que distintos especialistas vinculados a un mismo estudio elaboren informes propios. La relación entre el estudio, el informe y su autor se conserva en los registros correspondientes, y el sistema establece que cada especialista puede disponer de un único informe propio por estudio. Por tanto, tanto el Especialista responsable como los Especialistas incorporados como observadores autorizados pueden elaborar sus propios informes médicos asociados al estudio, siempre que dispongan de los permisos correspondientes. Cada informe pertenece al Especialista que lo creó y no puede ser modificado por otros profesionales.
+
+\subsection{Protección de datos y comunicaciones}
+\label{subsec:proteccion-datos-comunicaciones}
+
+En el tratamiento de las credenciales, el sistema distingue las contraseñas utilizadas para autenticar a los usuarios de los \textit{tokens} de acceso emitidos para las sesiones. La creación y recuperación de cuentas se realizan mediante procedimientos específicos de activación y restablecimiento de contraseña. Por su parte, las solicitudes autenticadas utilizan \textit{tokens} JWT, cuya validación y revocación se describieron en el apartado~\ref{subsec:autenticacion-usuarios}. Estos mecanismos evitan que la autorización de las operaciones clínicas dependa únicamente de los controles visibles en la interfaz web.
+
+El cifrado de las comunicaciones constituye una consideración específica del despliegue. El uso de HTTPS con TLS permite proteger la información transmitida entre el navegador y el punto de entrada del sistema frente a su lectura o alteración durante el transporte. En el entorno de despliegue utilizado, el acceso de los usuarios se realiza mediante HTTPS (Sección~\ref{subsec:despliegue-nube}), mientras que los servicios internos se comunican dentro de la red del propio entorno. La habilitación de HTTPS y la configuración de los certificados forman parte de la instalación en cada infraestructura donde se despliegue el sistema.
+
+\begin{nuevotexto}
+El detalle de los mecanismos de autenticación, de la asignación de permisos y de las reglas de autorización sobre cada recurso se presenta en el Anexo~A.
+\end{nuevotexto}
+
+\section{Diseño de auditoría y trazabilidad}
+\label{sec:diseno-auditoria-trazabilidad}
+
+El diseño de auditoría y trazabilidad del sistema contempla mecanismos para registrar operaciones relevantes del sistema y facilitar el seguimiento de las actividades realizadas sobre sus recursos. Dado que la plataforma administra información de pacientes, estudios electroencefalográficos e informes médicos, resulta necesario disponer de registros que permitan reconocer las acciones efectuadas y el contexto en el que se produjeron.
+
+La auditoría funcional se apoya en eventos persistidos en la base de datos clínica. Estos registros permiten identificar operaciones de negocio seleccionadas y conservar información sobre el actor, la acción realizada y los datos de contexto correspondientes. Su consulta proporciona una visión histórica de las actividades registradas, sin que ello implique que todas las solicitudes HTTP o todos los cambios internos generen necesariamente un evento de auditoría persistente.
+
+Para facilitar la revisión de esta información, el sistema incorpora una vista de actividad reciente en el panel de control y una interfaz de consulta de auditorías. Esta última permite explorar los registros mediante paginación, ordenamiento cronológico y filtros combinables, de acuerdo con las autorizaciones exigidas por los servicios del \textit{backend}.
+
+De manera complementaria, los componentes de aplicación producen registros técnicos que permiten seguir solicitudes y diagnosticar incidencias. Estos registros utilizan identificadores de trazabilidad para relacionar las etapas de una operación. En el subsistema de inteligencia artificial, el identificador de ejecución permite además vincular el seguimiento técnico con los estados y resultados del procesamiento asíncrono.
+
+Por tanto, el diseño distingue entre los eventos de auditoría conservados para la consulta funcional y los registros técnicos utilizados para el seguimiento operativo.
+
+\subsection{Consulta y seguimiento de auditorías}
+\label{subsec:consulta-seguimiento-auditorias}
+
+Para una revisión más detallada, el sistema incorpora la interfaz denominada ``Ver todas las auditorías'', que permite consultar los registros mediante una tabla organizada. Esta interfaz presenta información de las operaciones registradas, incluyendo datos relacionados con el usuario, su rol, la acción realizada y la fecha del evento, según los atributos disponibles en cada registro.
+
+\begin{nuevotexto}
+El registro de las operaciones y la trazabilidad de los procesos de integración se describen en el Anexo~A.
+\end{nuevotexto}
+
+\section{Diseño de interfaz de usuario}
+\label{sec:diseno-interfaz-usuario}
+
+El diseño de la interfaz de usuario del sistema se orienta a facilitar la interacción de los distintos perfiles con las funcionalidades del sistema. Para ello, considera las necesidades de administración, de registro y gestión de estudios electroencefalográficos, de identificación de pacientes durante la creación de estudios y de revisión clínica.
+
+Una parte central del diseño corresponde a la
+visualización de estudios EEG. Debido a la naturaleza
+temporal de las señales electroencefalográficas,
+esta interfaz incorpora mecanismos de navegación
+por el registro, selección de montajes, ajuste de
+filtros y sensibilidad, así como opciones para ampliar
+el área de visualización. Estos controles permiten
+al especialista examinar las señales y relacionarlas
+con los eventos y hallazgos asociados al estudio.
+
+\subsection{Organización general de la interfaz}
+\label{subsec:organizacion-general-interfaz}
+
+El panel de control constituye el punto de entrada
+a las funcionalidades del sistema. Su contenido
+se organiza mediante elementos de resumen y accesos
+a las operaciones habituales del usuario. De acuerdo
+con el perfil autenticado, pueden presentarse
+indicadores relacionados con pacientes, estudios
+electroencefalográficos, informes médicos y
+procesamientos mediante inteligencia artificial,
+así como accesos a las secciones habilitadas.
+
+La Figura~\ref{fig:panel-principal-especialista}
+presenta la organización del panel de control del sistema correspondiente al perfil Especialista.
+En ella se observan los indicadores de resumen,
+los accesos rápidos a las funcionalidades
+disponibles y la sección de actividad reciente.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{ThesisFigs/panel_principal_especialista.png}
+    \caption{Organización del panel de control del sistema
+    correspondiente al perfil Especialista.}
+    \label{fig:panel-principal-especialista}
+\end{figure}
+
+\subsection{Interfaz de visualización y análisis de señales EEG}
+
+La organización del visualizador contempla un área principal destinada a la representación de las señales EEG y un conjunto de controles que permiten modificar las condiciones de visualización. Estos elementos se distribuyen de manera que el usuario pueda realizar ajustes durante la exploración del registro sin abandonar el entorno de análisis.
+
+La Figura~\ref{fig:interfaz-general-eeg} presenta la interfaz general de visualización y análisis de señales EEG del sistema. En ella se observa la distribución del área de representación de las señales, los controles de configuración y navegación temporal, el panel de anomalías y el espacio destinado a la elaboración del informe médico.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{ThesisFigs/interfaz-general-eeg.png}
+    \caption{Interfaz general de visualización y análisis de señales EEG del sistema.}
+    \label{fig:interfaz-general-eeg}
+\end{figure}
+
+\subsection[Interfaces de revisión clínica y elaboración de informes médicos]
+{Interfaces de revisión clínica y elaboración de\\informes médicos}
+
+Cuando un estudio dispone de resultados de inteligencia artificial previamente almacenados, la interfaz permite consultar los intervalos señalados en dichos registros. Estos resultados se presentan como información complementaria para orientar la revisión del especialista, quien conserva la responsabilidad de examinar las señales y determinar la relevancia clínica de los hallazgos. De esta manera, el sistema integra el apoyo automatizado sin sustituir la interpretación realizada por el profesional.
+
+El sistema contempla la participación de diferentes Especialistas autorizados en la revisión de un mismo estudio. Cada Especialista puede elaborar un único informe médico propio por estudio, manteniendo diferenciados los registros correspondientes a cada autor. Esta organización permite conservar la individualidad de las evaluaciones y garantiza que ningún Especialista pueda modificar el contenido de un informe perteneciente a otro profesional.
+
+La Figura~\ref{fig:interfaz-informe-medico} presenta la interfaz de elaboración de informes médicos del sistema. En ella se observan las secciones destinadas al registro de información administrativa, datos clínicos, condiciones técnicas, hallazgos ictales e interictales, conclusiones y observaciones. Asimismo, se muestran los controles disponibles para guardar el informe, consultar su vista previa y proceder a su cierre.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{minipage}[t]{0.34\textwidth}
+        \vspace{0pt}
+        \centering
+        \includegraphics[width=\linewidth]{ThesisFigs/informe_medico_superior.png}
+    \end{minipage}
+    \hspace{0.04\textwidth}
+    \begin{minipage}[t]{0.34\textwidth}
+        \vspace{0pt}
+        \centering
+        \includegraphics[width=\linewidth]{ThesisFigs/informe_medico_inferior.png}
+    \end{minipage}
+
+    \caption{Interfaz de elaboración de informes médicos del sistema.}
+    \label{fig:interfaz-informe-medico}
+\end{figure}
+
+\begin{nuevotexto}
+Las demás pantallas del sistema, entre ellas la gestión de estudios, el modo de pantalla completa del visualizador y la consulta de auditoría, se presentan en el Anexo~A.
+\end{nuevotexto}
+
