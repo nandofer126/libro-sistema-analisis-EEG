@@ -136,16 +136,6 @@ adquisición del EEG, proporcionando herramientas para la gestión de pacientes
 y estudios, la visualización de señales, la revisión de anomalías y la
 elaboración de informes médicos.
 
-Desde el punto de vista tecnológico, el sistema se estructura como una
-aplicación web compuesta por una interfaz de usuario, servicios de \textit{backend},
-una base de datos relacional y componentes destinados a la integración y
-ejecución del procesamiento mediante inteligencia artificial. Esta separación
-permite distribuir las responsabilidades entre los diferentes componentes
-del sistema y favorecer su mantenimiento y evolución. La arquitectura y las
-decisiones de diseño se presentan en el Capítulo~4, mientras que los aspectos
-relacionados con su implementación e integración se desarrollan en el
-Capítulo~5.
-
 \section{Alcance y delimitaciones}
 \label{sec:alcance}
 
@@ -172,16 +162,6 @@ componente con los demás elementos del sistema y la presentación de
 sus resultados al profesional especialista. El desarrollo y
 entrenamiento del modelo de inteligencia artificial no forman parte
 del alcance de este trabajo.
-
-Las verificaciones documentadas permitieron comprobar el funcionamiento integral del procesamiento automatizado sobre un conjunto reducido de estudios reales.
-La evaluación de su eficacia diagnóstica a mayor escala excede el alcance de este trabajo. Asimismo, los
-resultados obtenidos mediante inteligencia artificial constituyen
-información de apoyo y no representan por sí mismos un diagnóstico
-médico. La evaluación e interpretación clínica permanecen bajo la
-responsabilidad del profesional especialista.
-
-Finalmente, las pruebas y verificaciones realizadas se circunscriben al contexto y a los requerimientos relevados para el área de Neurología del Hospital Central del IPS. Si bien la arquitectura y las tecnologías utilizadas permiten considerar futuras adaptaciones o ampliaciones, la utilización del sistema en otros entornos clínicos podría requerir nuevos relevamientos, ajustes funcionales
-y procesos de validación específicos.
 
 \section{Hipótesis del proyecto}
 \label{sec:hipotesis}
@@ -234,69 +214,12 @@ las actividades de desarrollo y las instancias de verificación y
 validación se encuentra fundamentada en el enfoque de ingeniería de
 sistemas descrito por \citet{ForsbergMooz1991}.
 
-La descripción detallada del Modelo V, su adaptación al proyecto,
-las actividades realizadas y los mecanismos de verificación y validación
-empleados se presenta en el Capítulo~3.
-
 \section{Organización del trabajo}
 \label{sec:organizacion}
 
 El presente trabajo se encuentra organizado en siete capítulos, estructurados
 de manera que permitan presentar progresivamente los fundamentos, el proceso
 de desarrollo, el diseño, la implementación y la evaluación del sistema.
-
-El Capítulo 1 presenta la introducción al proyecto, incluyendo el contexto y
-la motivación, la revisión de la literatura, los objetivos, el problema y la
-oportunidad identificados, la justificación, la solución propuesta, el alcance
-y las delimitaciones, la hipótesis, los resultados esperados y la metodología
-general adoptada.
-
-El Capítulo 2 desarrolla el marco teórico y el estado del arte necesarios para
-comprender los fundamentos del proyecto. Se abordan el concepto de \textit{software}
-como dispositivo médico (SaMD), la epilepsia, la electroencefalografía, la
-representación y el procesamiento de señales EEG y la aplicación de técnicas
-de inteligencia artificial a su análisis. Asimismo, se presentan sistemas y
-herramientas relacionados con la gestión y visualización de EEG, junto con
-antecedentes nacionales e internacionales relevantes para el desarrollo del sistema.
-
-El Capítulo 3 describe la metodología de desarrollo utilizada durante el
-proyecto, detallando el Modelo V y su adaptación al contexto del sistema.
-Se presentan las actividades de relevamiento de requerimientos, diseño,
-desarrollo, verificación, integración y validación, así como los mecanismos
-de retroalimentación empleados durante el proceso.
-
-El Capítulo 4 presenta el análisis de requerimientos y el diseño del sistema.
-En este capítulo se describen el contexto operativo, los actores y perfiles de
-usuario, los requerimientos funcionales y no funcionales y los diagramas de
-secuencia. Asimismo, se desarrolla el diseño de la arquitectura, la base de
-datos, los servicios e interfaces de integración, el componente de inteligencia
-artificial integrado en el sistema, los mecanismos de seguridad, auditoría y
-trazabilidad, y la interfaz de usuario.
-
-El Capítulo 5 describe la implementación del sistema, incluyendo las
-tecnologías y herramientas utilizadas y la construcción e integración de los
-principales componentes de la plataforma. Se presentan la implementación de la
-base de datos, el \textit{backend} y el \textit{frontend}, la gestión de pacientes y estudios
-EEG, el procesamiento y visualización de las señales, la integración con el
-servicio de inteligencia artificial, la gestión de anomalías e informes
-médicos, el control de acceso, la auditoría y el despliegue de los componentes
-del sistema.
-
-El Capítulo 6 presenta las pruebas y verificaciones realizadas sobre
-el sistema. Se describen las pruebas funcionales y de integración,
-así como las verificaciones relacionadas con la visualización de
-señales EEG y la presentación de anomalías registradas en la
-plataforma. Asimismo, se exponen los resultados de las actividades
-de evaluación realizadas, sus principales limitaciones y el grado
-de cumplimiento de los requerimientos establecidos, considerando
-los objetivos planteados para el proyecto.
-
-Finalmente, el Capítulo 7 presenta las conclusiones derivadas del
-desarrollo y la evaluación del sistema, analiza el grado de
-cumplimiento de los objetivos y la evidencia obtenida en relación
-con la hipótesis planteada, identifica los principales aportes
-y limitaciones del proyecto y establece posibles líneas de
-trabajo futuro.
 
 \begin{nuevotexto}
 El detalle del diseño, de la implementación y de la ejecución de las pruebas se presenta en los Anexos A, B y C, respectivamente, que se listan al final del documento.

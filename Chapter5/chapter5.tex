@@ -40,40 +40,6 @@ la interfaz web, la ejecución de la lógica de negocio, la persistencia
 de información y el procesamiento de señales electroencefalográficas
 mediante inteligencia artificial.
 
-La interfaz web se desarrolló con React, una biblioteca de JavaScript
-orientada a la construcción de interfaces mediante componentes
-reutilizables. Para su implementación se utilizó TypeScript, que
-incorpora tipado estático al desarrollo de aplicaciones basadas en
-JavaScript, junto con Vite como herramienta de desarrollo y
-construcción. La navegación entre las diferentes secciones se
-implementó mediante React Router, mientras que la comunicación con
-los servicios del \textit{backend} se realiza utilizando la API nativa Fetch.
-
-El \textit{backend} se implementó mediante Java 21 y Spring Boot, utilizando
-Spring Web MVC para la exposición de servicios REST. La persistencia
-de información se gestiona mediante Spring Data JPA e Hibernate,
-mientras que Spring Security proporciona los mecanismos de
-autenticación y autorización. La aplicación se empaqueta en formato
-WAR para su ejecución sobre el servidor de aplicaciones WildFly.
-
-Para el almacenamiento de la información clínica se utiliza
-PostgreSQL 17, un sistema gestor de bases de datos relacional. Su
-implementación contempla estructuras para almacenar pacientes,
-estudios electroencefalográficos, usuarios, informes médicos,
-anomalías y otros registros asociados al funcionamiento del sistema.
-
-El subsistema de inteligencia artificial se implementó mediante
-Python y se encuentra organizado en dos componentes diferenciados.
-El primero corresponde a una API desarrollada con FastAPI, encargada de recibir y gestionar las solicitudes relacionadas con el procesamiento de señales EEG y facilitar la comunicación con los servicios asociados. El segundo corresponde a un motor de procesamiento independiente, responsable de ejecutar las tareas de análisis de las señales electroencefalográficas. Ambos componentes utilizan una instancia PostgreSQL destinada a almacenar información relacionada con las ejecuciones y los resultados del procesamiento.
-
-Para el tratamiento de señales electroencefalográficas se utilizan
-bibliotecas científicas como MNE-Python, NumPy, SciPy y pandas.
-Asimismo, se emplea joblib para cargar modelos previamente
-entrenados y scikit-learn como dependencia necesaria para su
-ejecución. Estas herramientas permiten desarrollar las operaciones
-de lectura, transformación y procesamiento de datos requeridas
-por el subsistema de inteligencia artificial.
-
 Las tecnologías y versiones concretas utilizadas
 en la implementación se presentan en el
 Cuadro~\ref{tab:tecnologias}.
@@ -187,20 +153,6 @@ de auditoría. Su estructura se implementó mediante \textit{scripts}
 SQL y se integra con el \textit{backend} desarrollado en Spring Boot
 a través de Spring Data JPA e Hibernate.
 
-Por otra parte, el subsistema de inteligencia artificial
-dispone de una base de datos destinada a registrar las
-solicitudes de procesamiento, sus estados de ejecución,
-los resultados obtenidos y otros datos asociados al análisis
-de señales EEG. La persistencia de este componente se
-implementó mediante SQLAlchemy, mientras que la evolución
-de su esquema se administra principalmente mediante Alembic.
-
-El almacenamiento de los archivos electroencefalográficos
-y de video se realiza fuera de las bases de datos, mediante
-directorios y volúmenes de almacenamiento. PostgreSQL conserva
-las referencias y los metadatos necesarios para relacionar
-estos recursos con los estudios correspondientes.
-
 Dado que las bases de datos clínica y de inteligencia
 artificial corresponden a instancias PostgreSQL
 independientes, no se establecen relaciones de integridad
@@ -242,15 +194,6 @@ datos persistentes. Para ello, se utilizan
 funcionalidades del ecosistema Spring, entre ellas
 Spring Web MVC, Spring Data JPA y Spring Security.
 
-Los servicios del \textit{backend} permiten administrar
-las operaciones relacionadas con usuarios,
-pacientes, estudios electroencefalográficos,
-archivos asociados, anomalías, eventos e informes
-médicos. Asimismo, incorporan mecanismos de
-autenticación y autorización destinados a
-controlar el acceso a las funcionalidades
-según los permisos asignados a cada usuario.
-
 La aplicación se empaqueta en formato WAR para
 su ejecución sobre el servidor de aplicaciones
 WildFly. Su integración con los demás componentes
@@ -269,16 +212,6 @@ persistente. Esta estructura se implementó mediante
 paquetes especializados dentro del proyecto Java,
 facilitando la separación de funciones entre los
 componentes de la aplicación.
-
-La capa de controladores, organizada en el paquete
-\texttt{controller}, se encarga de recibir las
-solicitudes HTTP y exponer los servicios REST
-utilizados por la interfaz web. Los controladores
-delegan las operaciones correspondientes a las
-clases del paquete \texttt{service}, donde se
-implementan las reglas de negocio, las validaciones
-funcionales y la coordinación entre los distintos
-componentes del sistema.
 
 \subsection{Implementación de la lógica de negocio}
 
@@ -518,15 +451,6 @@ información previamente obtenida y facilitar
 la navegación entre diferentes intervalos
 del registro.
 
-El visualizador dispone de controles para configurar las frecuencias de corte inferior (\textit{Low cut}) y superior (\textit{High cut}), así como un filtro de rechazo de banda (\texttt{notch}) de 50 Hz. También incorpora configuraciones
-predefinidas y ajustes individuales por
-canal. Antes de enviar los parámetros,
-la interfaz comprueba condiciones como
-la utilización de valores positivos,
-la relación entre las frecuencias de
-corte y el límite establecido por la
-frecuencia de Nyquist.
-
 \subsection{Reproducción sincronizada de video y presentación de resultados de IA}
 
 La sincronización entre las señales
@@ -585,14 +509,6 @@ motor independiente de procesamiento implementado en Python.
 Esta separación permite distinguir las responsabilidades
 de comunicación, validación y gestión de ejecuciones de
 las operaciones de procesamiento científico e inferencia.
-
-La coordinación entre ambos componentes se realiza mediante
-una base de datos PostgreSQL, utilizada tanto para conservar
-la información de las ejecuciones como para gestionar una
-cola persistente de trabajos. De esta manera, las solicitudes
-de análisis pueden registrarse y consultarse sin requerir
-que el procesamiento intensivo se complete durante la
-atención de una petición HTTP.
 
 \subsection{Arquitectura y organización de los componentes de inteligencia artificial}
 
@@ -727,13 +643,6 @@ comunicación y acceso a los recursos compartidos. La implementación
 se organiza en proyectos independientes que incluyen la interfaz
 web, el \textit{backend} clínico, la base de datos clínica, la API de
 inteligencia artificial y el motor de procesamiento.
-
-Para facilitar la construcción y ejecución de estos componentes,
-se utilizan contenedores Docker y archivos de configuración
-Docker Compose. Esta organización permite definir las dependencias
-de ejecución, los puertos de comunicación, las variables de
-entorno y los recursos de almacenamiento necesarios para cada
-servicio.
 
 La integración se realiza mediante una red Docker compartida,
 servicios HTTP y mecanismos de persistencia. Asimismo, se

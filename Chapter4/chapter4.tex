@@ -38,13 +38,6 @@ señales EEG. El resultado del procesamiento automatizado no sustituye la
 interpretación realizada por el especialista ni constituye por sí mismo un
 diagnóstico clínico.
 
-El contexto operativo también hizo necesario considerar diferentes
-responsabilidades dentro del sistema. Las actividades relacionadas con la
-administración de usuarios, la preparación y gestión de los estudios y la
-revisión especializada de las señales requieren distintos niveles de acceso.
-Asimismo, las operaciones realizadas sobre la información debían quedar
-registradas para facilitar su trazabilidad.
-
 A partir del análisis de este contexto se definieron los actores, requerimientos
 y componentes que conforman el sistema. Las secciones siguientes presentan estas
 definiciones y describen las principales decisiones adoptadas para el diseño de
@@ -313,17 +306,6 @@ El sistema se organiza mediante una arquitectura cliente-servidor,
 complementada con componentes especializados para el procesamiento
 de señales EEG.
 
-La interfaz web constituye el punto de acceso de los usuarios
-autorizados. Desde ella se realizan las operaciones relacionadas
-con la administración del sistema, la gestión de estudios, la
-visualización de señales electroencefalográficas y la elaboración
-de informes médicos.
-
-Las solicitudes realizadas desde la interfaz son atendidas por
-el \textit{backend} clínico, encargado de aplicar las reglas de negocio,
-verificar las condiciones de acceso y coordinar las operaciones
-necesarias para consultar o modificar la información almacenada.
-
 La persistencia de la información estructurada se organiza mediante dos bases de datos PostgreSQL: una destinada a la gestión clínica y administrativa del sistema, y otra utilizada por el subsistema de inteligencia artificial para almacenar información relacionada con las ejecuciones y sus resultados. Por otra parte, los archivos asociados con los estudios EEG se conservan mediante mecanismos de almacenamiento independientes de las estructuras relacionales.
 
 \begin{nuevotextodos}
@@ -396,48 +378,6 @@ Las dos bases se vinculan mediante identificadores compartidos a nivel de aplica
 La descripción completa de las entidades de ambas bases, los demás diagramas entidad-relación y los mecanismos de integridad se presentan en el Anexo~A.
 \end{nuevotextodos}
 
-\section{Diseño de los servicios e interfaces de integración}
-\label{sec:diseno-servicios-integracion}
-
-La integración de los componentes del sistema se organiza
-mediante interfaces de comunicación que permiten intercambiar
-información entre la aplicación web, el \textit{backend} clínico y
-el subsistema de inteligencia artificial. Esta organización
-establece responsabilidades diferenciadas para la gestión
-clínica, el acceso a los estudios electroencefalográficos
-y la ejecución de los procesos de análisis automatizado.
-
-La interfaz web, desarrollada con React, consume los servicios
-REST expuestos por el \textit{backend} clínico, implementado con
-Spring Boot y ejecutado sobre WildFly. Este componente
-centraliza las operaciones relacionadas con usuarios,
-pacientes, estudios EEG, informes médicos y auditoría,
-además de gestionar la comunicación con los servicios
-de inteligencia artificial.
-
-La integración con el subsistema de inteligencia artificial
-se realiza mediante una API independiente desarrollada
-con FastAPI. El \textit{backend} clínico utiliza esta interfaz
-para solicitar análisis, consultar su estado, recuperar
-resultados y obtener representaciones complementarias
-de las señales EEG, como los espectrogramas.
-
-La API de inteligencia artificial y el motor de procesamiento
-se coordinan a través de una base de datos PostgreSQL
-compartida por ambos componentes. Esta comunicación permite
-gestionar las solicitudes de análisis sin requerir una
-conexión HTTP directa entre la API y el motor.
-
-El diseño de las interfaces también contempla mecanismos
-de autenticación, validación de solicitudes y tratamiento
-de errores, con el propósito de controlar el acceso a
-las operaciones y proporcionar respuestas adecuadas
-a los componentes consumidores.
-
-\begin{nuevotexto}
-Las interfaces REST del \textit{backend} clínico, las interfaces de integración con la API de inteligencia artificial, el intercambio de archivos EEG y el manejo de respuestas y errores se detallan en el Anexo~A.
-\end{nuevotexto}
-
 \section[Diseño del componente de inteligencia artificial integrado en el sistema]{Diseño del componente de inteligencia\\artificial integrado en el sistema}
 \label{sec:diseno-componente-ia}
 
@@ -456,8 +396,6 @@ El diseño interno del modelo y su entrenamiento no forman parte de dicho alcanc
 
 \subsection{Preparación y procesamiento de señales EEG}
 \label{subsec:preparacion-procesamiento-eeg-ia}
-
-El procesamiento de señales electroencefalográficas mediante inteligencia artificial en el sistema parte de archivos digitales en formato EDF. El motor de inferencia accede al archivo asociado con la ejecución solicitada mediante una referencia a su ubicación en el almacenamiento, sin necesidad de transferir la totalidad de las muestras a través de la API de inteligencia artificial. Para interpretar el registro, el procedimiento utiliza la biblioteca MNE de Python.
 
 El procedimiento de análisis forma parte del modelo de detección provisto por el equipo de ciencia de datos del proyecto, por lo que su diseño interno no integra el alcance del presente trabajo.
 Para integrarlo, el motor considera sus etapas generales: la adaptación de las señales a un montaje bipolar longitudinal de 18 derivaciones, el remuestreo a 256~Hz, el filtrado, la segmentación en ventanas consecutivas de 10 segundos, la extracción de características de cada ventana y su normalización para cada registro.
@@ -485,12 +423,6 @@ El diseño contempla mecanismos para incorporar a los informes médicos las vent
 \label{sec:seguridad-control-acceso}
 
 El diseño de seguridad del sistema contempla mecanismos destinados a controlar el acceso a las funcionalidades del sistema y a la información asociada con los pacientes, los estudios electroencefalográficos y los informes médicos. Dada la naturaleza de estos datos, el acceso se organiza mediante la identificación de los usuarios, la asignación de permisos y la verificación de las condiciones necesarias para realizar cada operación.
-
-La autenticación se realiza a través del \textit{backend} clínico, que emite un \textit{token} de acceso para las sesiones válidas. Las solicitudes posteriores a los servicios protegidos incorporan dicho \textit{token}, cuya validez se comprueba antes de permitir el procesamiento de la operación. Este mecanismo se complementa con el registro de sesiones, lo que permite controlar la vigencia de los accesos autenticados.
-
-La autorización combina permisos asociados a los roles del sistema con verificaciones adicionales sobre los recursos clínicos. Por ello, disponer de un permiso general para consultar o modificar estudios no implica necesariamente poder acceder a cualquier registro: determinadas operaciones también dependen de la relación del usuario con el estudio o el informe correspondiente.
-
-En la aplicación web, las rutas y acciones disponibles se presentan de acuerdo con la autenticación y los permisos del usuario. Sin embargo, estas restricciones de interfaz no sustituyen las verificaciones realizadas por el \textit{backend}, que constituye el punto de control para autorizar las solicitudes recibidas.
 
 \subsection{Autenticación de usuarios}
 \label{subsec:autenticacion-usuarios}
